@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
+
+/* 全站預設字體 */
+body,
+html {
+    font-family: 'Noto Serif TC', serif !important;
+}
