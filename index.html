@@ -117,7 +117,7 @@
       <button type="button" id="btnCheckIn" class="btn btn-success btn-lg px-5 py-3 me-3 punch-btn">簽到</button>
       <button type="button" id="btnCheckOut" class="btn btn-danger  btn-lg px-5 py-3 punch-btn">簽退</button>
     </div>
-    <div class="card shadow-lg w-75 w-100" style="max-width: 960px;">
+    <div class="card shadow-lg w-50 w-100" style="max-width: 600px;">
       <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
         <span>Log</span>
         <button id="btnClearLog" class="btn btn-sm btn-outline-light">清空</button>
@@ -157,6 +157,14 @@
       const logoutBtn = document.querySelector('.btn-logout');
       if (logoutBtn) {
         logoutBtn.onclick = logout;
+      }
+      // 綁定「那就改天吧」連結
+      const delayLink = document.getElementById('link-delay');
+      if (delayLink) {
+        delayLink.onclick = (e) => {
+          e.preventDefault();
+          addDaysToClock(1); // 每次加一天
+        };
       }
     }
 
@@ -198,16 +206,33 @@
     function logout() {
       addLog(`${currentUser}，已登出！`);
       currentUser = null;
+      // 重置時鐘
+      clockBase = new Date();
+      clockOffset = 0;
+      updateClock();
+
       updateNavbarUI();
     }
 
     // ===== 時鐘 =====
+    let clockBase = new Date(); // 基準時間
+    let clockOffset = 0;        // 經過秒數
+
     function updateClock() {
+      const showTime = new Date(clockBase.getTime() + clockOffset * 1000);
       document.getElementById("clock").textContent =
-        new Date().toLocaleString("zh-TW", { hour12: false });
+        showTime.toLocaleString("zh-TW", { hour12: false });
+      clockOffset++;
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    function addDaysToClock(days = 1) {
+      // 先把目前顯示的時間作為新基準
+      clockBase = new Date(clockBase.getTime() + clockOffset * 1000 + days * 24 * 60 * 60 * 1000);
+      clockOffset = 0;
+      updateClock();
+    }
 
     // ===== Log 工具 =====
     function addLog(action) {
@@ -231,6 +256,11 @@
         return;
       }
       currentUser = name;
+      // 重置時鐘
+      clockBase = new Date();
+      clockOffset = 0;
+      updateClock();
+
       updateNavbarUI();
       const modalInstance = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
       if (modalInstance) {
