@@ -78,6 +78,38 @@
 </head>
 
 <body>
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="loginForm" autocomplete="off">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">登入</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="loginName" class="form-label">姓名</label>
+              <input type="text" class="form-control" id="loginName" placeholder="請輸入姓名" required>
+            </div>
+            <div class="mb-3">
+              <label for="loginPassword" class="form-label">密碼</label>
+              <input type="password" class="form-control" id="loginPassword" placeholder="請輸入密碼">
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe">
+              <label class="form-check-label" for="rememberMe">
+                記住我
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success w-100">登入</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div id="site-header"></div>
   <main class="d-flex flex-column justify-content-center align-items-center bg-light">
     <div id="clock" class="text-primary mb-4" aria-live="polite">--:--:--</div>
@@ -96,21 +128,79 @@
   <div id="site-footer"></div>
 
   <script>
-    // Partial 載入
+    // ===== Partial 載入與 Navbar UI =====
+    let currentUser = null;
+
     async function loadPart(selector, url) {
       try {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error(`${url} 載入失敗：${res.status}`);
         document.querySelector(selector).innerHTML = await res.text();
+
+        bindNavbarEvents();
+        bindLoginFormEvent();
       } catch {
         document.querySelector(selector).innerHTML =
           `<div class="container py-2"><div class="alert alert-warning">無法載入 ${url}，請確認路徑與本機伺服器。</div></div>`;
       }
     }
-    loadPart("#site-header", "./navbar.html");
-    loadPart("#site-footer", "./footer.html");
 
-    // 時鐘
+    function bindNavbarEvents() {
+      const loginBtn = document.querySelector('.btn-login');
+      if (loginBtn) {
+        loginBtn.onclick = () => {
+          const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+          modal.show();
+        };
+      }
+      const logoutBtn = document.querySelector('.btn-logout');
+      if (logoutBtn) {
+        logoutBtn.onclick = logout;
+      }
+    }
+
+    function bindLoginFormEvent() {
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        // 移除所有舊事件
+        const newForm = loginForm.cloneNode(true);
+        loginForm.parentNode.replaceChild(newForm, loginForm);
+        newForm.addEventListener('submit', handleLoginSubmit);
+      }
+    }
+
+    function updateNavbarUI() {
+      setTimeout(() => {
+        const loginBtn = document.querySelector('.btn-login');
+        const logoutBtn = document.querySelector('.btn-logout');
+        const welcomeSpan = document.querySelector('#welcome-user');
+        if (currentUser) {
+          if (loginBtn) loginBtn.style.display = 'none';
+          if (logoutBtn) {
+            logoutBtn.style.display = '';
+            logoutBtn.classList.add('btn-danger');
+            logoutBtn.classList.remove('btn-login');
+            logoutBtn.textContent = '登出';
+          }
+          if (welcomeSpan) {
+            welcomeSpan.textContent = `${currentUser}，你好！`;
+            welcomeSpan.style.display = '';
+          }
+        } else {
+          if (loginBtn) loginBtn.style.display = '';
+          if (logoutBtn) logoutBtn.style.display = 'none';
+          if (welcomeSpan) welcomeSpan.style.display = 'none';
+        }
+      }, 100);
+    }
+
+    function logout() {
+      addLog(`${currentUser}，已登出！`);
+      currentUser = null;
+      updateNavbarUI();
+    }
+
+    // ===== 時鐘 =====
     function updateClock() {
       document.getElementById("clock").textContent =
         new Date().toLocaleString("zh-TW", { hour12: false });
@@ -118,7 +208,7 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Log 工具
+    // ===== Log 工具 =====
     function addLog(action) {
       const ts = document.getElementById("clock").textContent;
       const logArea = document.getElementById("log-area");
@@ -131,11 +221,51 @@
       document.getElementById("log-area").textContent = "尚無紀錄";
     }
 
-    // 綁定事件
-    document.getElementById("btnCheckIn").onclick = () => addLog("簽到");
-    document.getElementById("btnCheckOut").onclick = () => addLog("簽退");
+    // ===== 登入表單處理 =====
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('loginName').value.trim();
+      if (!name) {
+        alert('請輸入姓名');
+        return;
+      }
+      currentUser = name;
+      updateNavbarUI();
+      const modalInstance = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+      if (modalInstance) {
+        modalInstance.hide();
+        setTimeout(() => {
+          const loginBtn = document.querySelector('.btn-login');
+          if (loginBtn && loginBtn.offsetParent !== null) {
+            loginBtn.focus();
+          }
+        }, 300);
+      }
+      addLog(`${currentUser}，登入成功！`);
+    }
+
+    // ===== 主頁按鈕事件 =====
+    document.getElementById("btnCheckIn").onclick = () => {
+      if (currentUser) {
+        addLog(`${currentUser}，簽到成功！`);
+      } else {
+        addLog("請先登入再簽到！");
+      }
+    };
+    document.getElementById("btnCheckOut").onclick = () => {
+      if (currentUser) {
+        addLog(`${currentUser}，簽退成功！`);
+      } else {
+        addLog("請先登入再簽退！");
+      }
+    };
     document.getElementById("btnClearLog").onclick = clearLog;
+
+    // ===== 初始化 Partial 載入 =====
+    loadPart("#site-header", "./navbar.html");
+    loadPart("#site-footer", "./footer.html");
   </script>
+
   <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
