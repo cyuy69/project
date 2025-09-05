@@ -139,6 +139,7 @@
 
         bindNavbarEvents();
         bindLoginFormEvent();
+        if (url.includes('navbar')) updateNavbarUI();
       } catch {
         document.querySelector(selector).innerHTML =
           `<div class="container py-2"><div class="alert alert-warning">無法載入 ${url}，請確認路徑與本機伺服器。</div></div>`;
