@@ -86,6 +86,27 @@
       --bs-btn-active-border-color: #5a23c8;
     }
 
+    .btn-login {
+      color: #fff;
+      background-color: #28a745;
+      border-color: #28a745;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .btn-login:hover,
+    .btn-login:focus {
+      background-color: #218838;
+      border-color: #1e7e34;
+      color: #fff;
+    }
+
+    .btn-login:active,
+    .btn-login.active {
+      background-color: #1e7e34;
+      border-color: #1c7430;
+      color: #fff;
+    }
+
     .bd-mode-toggle {
       z-index: 1500;
     }
@@ -209,7 +230,7 @@
             </li> -->
           </ul>
           <div>
-            <button type="button" class="btn btn-outline-light">登出</button>
+            <button type="button" class="btn btn-login">登入</button>
           </div>
           <!-- <form role="search">
             <input class="form-control" type="search" placeholder="Search" aria-label="Search" />

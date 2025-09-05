@@ -18,7 +18,7 @@
     .icon {
       opacity: 0.6;
     }
-    
+
     main {
       min-height: 100vh;
     }
@@ -53,6 +53,27 @@
         display: block;
       }
     }
+
+    .btn-login {
+      color: #fff;
+      background-color: #28a745;
+      border-color: #28a745;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .btn-login:hover,
+    .btn-login:focus {
+      background-color: #218838;
+      border-color: #1e7e34;
+      color: #fff;
+    }
+
+    .btn-login:active,
+    .btn-login.active {
+      background-color: #1e7e34;
+      border-color: #1c7430;
+      color: #fff;
+    }
   </style>
 </head>
 
@@ -73,7 +94,7 @@
     </div>
   </main>
   <div id="site-footer"></div>
-  
+
   <script>
     // Partial 載入
     async function loadPart(selector, url) {
