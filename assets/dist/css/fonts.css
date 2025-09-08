@@ -3,5 +3,5 @@
 /* 全站預設字體 */
 body,
 html {
-    font-family: 'Noto Serif TC', serif !important;
+    font-family: 'Noto Sans TC', 'Noto Sans', 'Segoe UI', 'Helvetica Neue', Arial, 'Liberation Sans', sans-serif !important;
 }

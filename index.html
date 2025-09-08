@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="assets/dist/css/navbars.css" />
   <link rel="stylesheet" href="assets/dist/css/fonts.css" />
   <style>
+    body,
+    
     .bi {
       vertical-align: -0.125em;
       fill: currentColor;
@@ -25,7 +27,7 @@
 
     #clock {
       font-size: 4rem;
-      font-weight: 800;
+      font-weight: 600;
       letter-spacing: 1px;
     }
 
@@ -215,8 +217,9 @@
     }
 
     // ===== 時鐘 =====
-    let clockBase = new Date(); // 基準時間
-    let clockOffset = 0;        // 經過秒數
+    let clockBase = new Date();
+    let clockOffset = 0;
+    let clockTimer = null;
 
     function updateClock() {
       const showTime = new Date(clockBase.getTime() + clockOffset * 1000);
@@ -224,15 +227,20 @@
         showTime.toLocaleString("zh-TW", { hour12: false });
       clockOffset++;
     }
-    updateClock();
-    setInterval(updateClock, 1000);
 
     function addDaysToClock(days = 1) {
-      // 先把目前顯示的時間作為新基準
-      clockBase = new Date(clockBase.getTime() + clockOffset * 1000 + days * 24 * 60 * 60 * 1000);
+      // 以目前顯示的時間為基準加天數
+      const now = new Date(clockBase.getTime() + clockOffset * 1000);
+      now.setDate(now.getDate() + days);
+      clockBase = now;
       clockOffset = 0;
-      updateClock();
+      updateClock(); // 立即更新畫面
     }
+
+    // 初始化時鐘
+    updateClock();
+    if (clockTimer) clearInterval(clockTimer);
+    clockTimer = setInterval(updateClock, 1000);
 
     // ===== Log 工具 =====
     function addLog(action) {
