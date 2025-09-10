@@ -10,6 +10,20 @@
   <link rel="stylesheet" href="assets/dist/css/navbars.css" />
   <link rel="stylesheet" href="assets/dist/css/fonts.css" />
   <style>
+    .toast {
+      transition: opacity 0.5s, transform 0.5s;
+      background-color: rgba(13, 110, 253, 0.9) !important;
+      /* 半透明藍色，依你原本 text-bg-primary 調整 */
+      color: #fff;
+      border: none;
+    }
+
+    .toast.hide-animate {
+      opacity: 0;
+      transform: translateX(100px);
+      /* 向右滑出 */
+    }
+
     body,
 
     .bi {
@@ -106,6 +120,8 @@
     </div>
   </div>
 
+  <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;"></div>
+
   <div id="site-header"></div>
   <main class="d-flex flex-column justify-content-center align-items-center bg-light">
     <div id="clock" class="text-primary mb-4" aria-live="polite">--:--:--</div>
@@ -124,6 +140,33 @@
   <div id="site-footer"></div>
 
   <script>
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast align-items-center text-bg-primary border-0 show mb-2';
+      toast.role = 'alert';
+      toast.ariaLive = 'assertive';
+      toast.ariaAtomic = 'true';
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+      container.appendChild(toast);
+
+      // 自動消失
+      setTimeout(() => {
+        toast.classList.add('hide-animate');
+        setTimeout(() => toast.remove(), 200);
+      }, 2500);
+
+      // 手動關閉
+      toast.querySelector('.btn-close').onclick = () => {
+        toast.classList.add('hide-animate');
+        setTimeout(() => toast.remove(), 200);
+      };
+    }
     // ===== Partial 載入與 Navbar UI =====
     let currentUser = null;
 
@@ -229,6 +272,7 @@
       clockBase = now;
       clockOffset = 0;
       updateClock(); // 立即更新畫面
+      showToast(`已延後${days}天！`);
     }
 
     // 初始化時鐘
@@ -244,6 +288,8 @@
       logArea.textContent = logArea.textContent.trim() === "尚無紀錄"
         ? entry
         : entry + "\n" + logArea.textContent;
+      // 顯示氣泡訊息（不含時間）
+      showToast(action);
     }
     function clearLog() {
       document.getElementById("log-area").textContent = "尚無紀錄";
